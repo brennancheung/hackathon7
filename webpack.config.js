@@ -12,7 +12,7 @@ const plugins = [
     inject: true,
     template: './index.html',
   }),
-  new CopyWebpackPlugin([{ from: './static' }])
+  new CopyWebpackPlugin([{ from: '../static' }])
 ]
 
 const appEntry = []
