@@ -3,10 +3,15 @@ const defaultSourceCode =
 
 class MainApp extends React.Component {
   render() {
-    const { username } = this.props;
+    const {
+      username
+    } = this.props;
 
     return <div>
       <input type="text" _connect-to={username} />
+      <input type="text" _connect-to={displayName} />
+      <input type="text" _connect-to={hometown} />
+      <input type="text" _connect-to={phoneNumber} />
       <button>Update</button>
     </div>;
   }
