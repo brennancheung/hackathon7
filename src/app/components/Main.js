@@ -6,6 +6,8 @@ import YAML from 'js-yaml'
 
 import * as babylon from 'babylon'
 import generate from 'babel-generator'
+import traverse from 'babel-traverse'
+import visitor from '../visitor'
 
 import cleanAst from '../util/cleanAst'
 import defaultSourceCode from '../defaultSourceCode'
@@ -16,6 +18,7 @@ class Main extends React.Component {
     ast: '',
     astObject: {},
     generatedCode: '',
+    showAst: false,
   }
 
   componentDidMount () {
@@ -26,6 +29,7 @@ class Main extends React.Component {
     try {
       this.setState({ sourceCode: value })
 
+      // Parsing
       const ast = babylon.parse(value, {
         sourceType: 'module',
         plugins: ['jsx']
@@ -33,11 +37,16 @@ class Main extends React.Component {
 
       if (ast) {
         this.setState({ astObject: ast })
+
+        // Clean up AST
         const simplified = cleanAst(ast)
-        // const astJson = JSON.stringify(simplified, null, 4)
         const astYaml = YAML.dump(simplified)
         this.setState({ ast: astYaml })
-        const generateOptions = {}
+
+        traverse(ast, visitor)
+
+        // Generated code
+        const generateOptions = { concise: false, minified: false }
         const generatedCode = generate(ast, generateOptions)
         if (generatedCode) {
           this.setState({ generatedCode: generatedCode.code })
@@ -49,13 +58,15 @@ class Main extends React.Component {
   }
 
   render () {
+    const { showAst } = this.state
+
     return (
       <div className="columns">
         <SourceCodeEditor
           value={this.state.sourceCode}
           onChange={this.handleSourceCodeChange}
         />
-        <ASTViewer value={this.state.ast} />
+        {showAst && <ASTViewer value={this.state.ast} />}
         <GeneratedCodeViewer value={this.state.generatedCode} />
       </div>
     )

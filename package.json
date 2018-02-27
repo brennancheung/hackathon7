@@ -5,6 +5,8 @@
   "main": "src/app/index.js",
   "dependencies": {
     "babel-generator": "^6.26.1",
+    "babel-traverse": "^6.26.0",
+    "babel-types": "^6.26.0",
     "babylon": "^6.18.0",
     "codemirror": "^5.35.0",
     "js-yaml": "^3.10.0",

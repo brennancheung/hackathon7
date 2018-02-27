@@ -3,9 +3,13 @@ const defaultSourceCode =
 
 class MainApp extends React.Component {
   render () {
+    const { email, password } = this.props
+
     return (
       <div>
-        <h1>Hello World!</h1>
+        <input type="text" connect-to={email} />
+        <input type="password" connect-to={password} />
+        <button>Log in</button>
       </div>
     )
   }
@@ -22,5 +26,7 @@ override =
 
   return num
 }`
+
+override = null
 
 export default override || defaultSourceCode
