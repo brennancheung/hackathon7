@@ -73,8 +73,8 @@ class Main extends React.Component {
           onChange={this.handleSourceCodeChange}
         />
         <GeneratedCodeViewer value={this.state.generatedCode} />
-        {showAst && <ASTViewer value={this.state.ast} />}
         {showDiff && <DiffViewer value={this.state.patch} />}
+        {showAst && <ASTViewer value={this.state.ast} />}
       </div>
     )
   }

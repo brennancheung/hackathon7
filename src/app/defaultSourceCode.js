@@ -4,7 +4,7 @@ const defaultSourceCode =
 class MainApp extends React.Component {
   render() {
     const {
-      username
+      someProp
     } = this.props;
 
     return <div>
