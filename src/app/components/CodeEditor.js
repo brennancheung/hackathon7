@@ -2,6 +2,7 @@ import React from 'react'
 import { Controlled as CodeMirror } from 'react-codemirror2'
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/mode/yaml/yaml'
+import 'codemirror/mode/diff/diff'
 import PropTypes from 'prop-types'
 
 const options = {

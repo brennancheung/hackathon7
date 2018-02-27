@@ -2,7 +2,9 @@ import React from 'react'
 import SourceCodeEditor from './SourceCodeEditor'
 import ASTViewer from './ASTViewer'
 import GeneratedCodeViewer from './GeneratedCodeViewer'
+import DiffViewer from './DiffViewer'
 import YAML from 'js-yaml'
+import * as JSDiff from 'diff'
 
 import * as babylon from 'babylon'
 import generate from 'babel-generator'
@@ -18,7 +20,9 @@ class Main extends React.Component {
     ast: '',
     astObject: {},
     generatedCode: '',
-    showAst: false,
+    patch: '',
+    showAst: true,
+    showDiff: true,
   }
 
   componentDidMount () {
@@ -32,7 +36,7 @@ class Main extends React.Component {
       // Parsing
       const ast = babylon.parse(value, {
         sourceType: 'module',
-        plugins: ['jsx']
+        plugins: ['jsx', 'classProperties', 'objectRestSpread', 'transformDecoratorsLegacy']
       })
 
       if (ast) {
@@ -47,9 +51,12 @@ class Main extends React.Component {
 
         // Generated code
         const generateOptions = { concise: false, minified: false }
-        const generatedCode = generate(ast, generateOptions)
+        const generatedCode = generate(ast, generateOptions).code
         if (generatedCode) {
-          this.setState({ generatedCode: generatedCode.code })
+          this.setState({ generatedCode: generatedCode })
+          const patch = JSDiff.createTwoFilesPatch('original', 'new', value, generatedCode)
+          this.setState({ patch })
+          console.log(patch)
         }
       }
     } catch (err) {
@@ -58,7 +65,7 @@ class Main extends React.Component {
   }
 
   render () {
-    const { showAst } = this.state
+    const { showAst, showDiff } = this.state
 
     return (
       <div className="columns">
@@ -66,8 +73,9 @@ class Main extends React.Component {
           value={this.state.sourceCode}
           onChange={this.handleSourceCodeChange}
         />
-        {showAst && <ASTViewer value={this.state.ast} />}
         <GeneratedCodeViewer value={this.state.generatedCode} />
+        {showAst && <ASTViewer value={this.state.ast} />}
+        {showDiff && <DiffViewer value={this.state.patch} />}
       </div>
     )
   }

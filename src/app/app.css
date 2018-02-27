@@ -19,6 +19,7 @@ h1 {
 #main-content .columns {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-auto-flow: row;
 }
 
 .editor-container {
@@ -26,10 +27,10 @@ h1 {
 }
 
 .full-height {
-  height: 100vh;
+  height: 50vh;
 }
 
 .CodeMirror {
-  height: 90vh;
+  height: 40vh;
   /* font-size: 1.3rem; */
 }

@@ -1,4 +1,5 @@
 import * as t from 'babel-types'
+import template from 'babel-template'
 
 const jsxAttrib = (key, value) =>
   t.JSXAttribute(
@@ -6,11 +7,13 @@ const jsxAttrib = (key, value) =>
     t.JSXExpressionContainer(value)
   )
 
+/*
 const memberExpr = (left, right) =>
   t.memberExpression(
     t.Identifier(left),
     t.Identifier(right)
   )
+*/
 
 function getConnectedValue (node) {
   if (t.isIdentifier(node)) {
@@ -37,7 +40,7 @@ function getConnectedValue (node) {
 
 function handleConnectTo (path) {
   const { node } = path
-  const connectedValue = getConnectedValue(node.value, t)
+  const connectedValue = getConnectedValue(node.value)
 
   const valueNode = jsxAttrib(
     'value',
@@ -56,30 +59,42 @@ function handleConnectTo (path) {
   )
 
   path.replaceWithMultiple([valueNode, onChangeNode])
-}
 
-function handleFirebaseMount (path) {
-  const { node } = path
-  const mountObject = getConnectedValue(node.value)
-  console.log(mountObject)
-
-  const valueNode = jsxAttrib(
-    'value',
-    memberExpr('data', mountObject.property)
-  )
-
-  const onChangeNode = jsxAttrib(
-    'onChange',
-    t.CallExpression(
-      t.MemberExpression(
-        t.ThisExpression(),
-        t.Identifier('handleFirebaseDocChange')
-      ),
-      [t.stringLiteral(mountObject.property)]
+  // check to see if handleConnectChange exists already
+  const classBodyPath = path.findParent(path => path.isClassBody())
+  const bodyContainer = classBodyPath.get('body')
+  const classProperties = bodyContainer.filter(path => path.isClassProperty())
+  const handleConnectedChange = classProperties.find(path => path.node.key.name === 'handleConnectedChange')
+  if (!handleConnectedChange) {
+    // insert the handler
+    const connectAst = template(`handleConnectedChange = key => value => dispatch => { dispatch({ type: 'SET_VALUE', payload: { key, value } }) }`)({})
+    const arrowFunctionExpression = connectAst.expression.right
+    const handleConnectedProp = t.classProperty(
+      t.identifier('handleConnectedChange'),
+      arrowFunctionExpression
     )
-  )
+    classBodyPath.unshiftContainer('body', handleConnectedProp)
+  }
 
-  path.replaceWithMultiple([valueNode, onChangeNode])
+  // check to see if we already import react-redux
+  const programPath = path.findParent(path => path.isProgram())
+  const programBodyContainer = programPath.get('body')
+  console.log(programBodyContainer)
+  const importDeclarations = programBodyContainer.filter(path => path.isImportDeclaration())
+  const reactReduxImport = importDeclarations.find(path => path.node.source.value === 'react-redux')
+  if (!reactReduxImport) {
+    // insert the connect import
+    const connectImportNode = t.importDeclaration(
+      [
+        t.importSpecifier(
+          t.identifier('connect'),
+          t.identifier('connect'),
+        )
+      ],
+      t.StringLiteral('react-redux')
+    )
+    programPath.unshiftContainer('body', connectImportNode)
+  }
 }
 
 const visitor = {
@@ -90,9 +105,6 @@ const visitor = {
 
     if (hasKey(node, 'connect-to')) {
       handleConnectTo(path)
-    }
-    if (hasKey(node, 'firebase-mount')) {
-      handleFirebaseMount(path)
     }
   }
 }
