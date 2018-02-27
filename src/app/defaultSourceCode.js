@@ -8,10 +8,10 @@ class MainApp extends React.Component {
     } = this.props;
 
     return <div>
-      <input type="text" _connect-to={username} />
-      <input type="text" _connect-to={displayName} />
-      <input type="text" _connect-to={hometown} />
-      <input type="text" _connect-to={phoneNumber} />
+      <input type="text" disable-connect-to={username} />
+      <input type="text" disable-connect-to={displayName} />
+      <input type="text" disable-connect-to={hometown} />
+      <input type="text" disable-connect-to={phoneNumber} />
       <button>Update</button>
     </div>;
   }
