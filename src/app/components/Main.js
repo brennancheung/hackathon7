@@ -56,7 +56,6 @@ class Main extends React.Component {
           this.setState({ generatedCode: generatedCode })
           const patch = JSDiff.createTwoFilesPatch('original', 'new', value, generatedCode)
           this.setState({ patch })
-          console.log(patch)
         }
       }
     } catch (err) {

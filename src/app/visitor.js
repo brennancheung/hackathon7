@@ -79,7 +79,6 @@ function handleConnectTo (path) {
   // check to see if we already import react-redux
   const programPath = path.findParent(path => path.isProgram())
   const programBodyContainer = programPath.get('body')
-  console.log(programBodyContainer)
   const importDeclarations = programBodyContainer.filter(path => path.isImportDeclaration())
   const reactReduxImport = importDeclarations.find(path => path.node.source.value === 'react-redux')
   if (!reactReduxImport) {
@@ -94,6 +93,39 @@ function handleConnectTo (path) {
       t.StringLiteral('react-redux')
     )
     programPath.unshiftContainer('body', connectImportNode)
+  }
+
+  // find the mapState function
+  const varDeclarations = programBodyContainer.filter(path => path.isVariableDeclaration())
+  const mapStateDeclaration = varDeclarations.find(path => path.node.declarations.find(x => x.id.name === 'mapState'))
+  if (mapStateDeclaration) {
+    const property = t.objectProperty(
+      t.identifier(connectedValue),
+      t.memberExpression(
+        t.identifier('state'),
+        t.identifier(connectedValue)
+      )
+    )
+    mapStateDeclaration.node.declarations[0].init.body.properties.push(property)
+  } else {
+    // insert the mapState
+    const mapStateAst = template(`const mapState = state => ({ ${connectedValue}: state.${connectedValue} })`)({})
+    classBodyPath.parentPath.insertBefore(mapStateAst)
+  }
+
+  const renderPath = path.findParent(path => path.isClassMethod())
+  const body = renderPath.get('body').get('body')
+  const declarations = body.find(path => path.isVariableDeclaration())
+  const properties = declarations.node.declarations[0].id.properties
+  const currentProp = properties.find(node => node.key.name === connectedValue)
+  if (!currentProp) {
+    const property = t.objectProperty(
+      t.identifier(connectedValue),
+      t.identifier(connectedValue),
+      false,
+      true
+    )
+    properties.push(property)
   }
 }
 

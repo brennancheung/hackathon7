@@ -1,14 +1,12 @@
 const defaultSourceCode =
 `import React from 'react';
 
-const mapState = state => ({ foo: 'bar' });
-
 class MainApp extends React.Component {
   render() {
     const { username } = this.props;
 
     return <div>
-      <input type="text" connect-to={username} />
+      <input type="text" _connect-to={username} />
       <button>Update</button>
     </div>;
   }
