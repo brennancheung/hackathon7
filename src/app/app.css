@@ -31,4 +31,5 @@ h1 {
 
 .CodeMirror {
   height: 90vh;
+  /* font-size: 1.3rem; */
 }

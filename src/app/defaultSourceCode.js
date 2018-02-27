@@ -3,13 +3,12 @@ const defaultSourceCode =
 
 class MainApp extends React.Component {
   render () {
-    const { email, password } = this.props
+    const { username } = this.props
 
     return (
       <div>
-        <input type="text" connect-to={email} />
-        <input type="password" connect-to={password} />
-        <button>Log in</button>
+        <input type="text" connect-to={username} />
+        <button>Update</button>
       </div>
     )
   }
